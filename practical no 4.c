@@ -1,172 +1,154 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include <iostream>
+using namespace std;
 
+// Node structure
 struct Node {
     int data;
-    struct Node *next;
+    Node* next;
 };
 
-// Create Linked List
-void create(struct Node **head) {
-    int n, i, value;
-    struct Node *newNode, *temp;
+// Insert a node at the end
+void insertNode(Node*& head, int value) {
+    Node* newNode = new Node();
+    newNode->data = value;
 
-    printf("\nEnter number of nodes: ");
-    scanf("%d", &n);
-
-    for (i = 1; i <= n; i++) {
-        printf("Enter value for node %d: ", i);
-        scanf("%d", &value);
-
-        newNode = (struct Node *)malloc(sizeof(struct Node));
-
-        newNode->data = value;
-        newNode->next = NULL;
-
-        if (*head == NULL) {
-            *head = newNode;
-        } else {
-            temp = *head;
-
-            while (temp->next != NULL) {
-                temp = temp->next;
-            }
-
-            temp->next = newNode;
-        }
-    }
-}
-
-// Display Linked List
-void display(struct Node *head) {
-    struct Node *temp = head;
-
-    if (head == NULL) {
-        printf("Linked List is empty!\n");
+    // If the list is empty
+    if (head == nullptr) {
+        head = newNode;
+        newNode->next = head;
         return;
     }
 
-    printf("\nFinal Linked List:\n");
+    // Find the last node
+    Node* temp = head;
 
-    while (temp != NULL) {
-        printf("%d -> ", temp->data);
-        temp = temp->next;
-    }
-
-    printf("NULL\n");
-}
-
-// Insert at beginning
-void insertBeginning(struct Node **head) {
-    int value;
-
-    printf("\nEnter value: ");
-    scanf("%d", &value);
-
-    struct Node *newNode =
-        (struct Node *)malloc(sizeof(struct Node));
-
-    newNode->data = value;
-    newNode->next = *head;
-    *head = newNode;
-}
-
-// Insert at end
-void insertEnd(struct Node **head) {
-    int value;
-
-    printf("\nEnter value: ");
-    scanf("%d", &value);
-
-    struct Node *newNode =
-        (struct Node *)malloc(sizeof(struct Node));
-
-    newNode->data = value;
-    newNode->next = NULL;
-
-    if (*head == NULL) {
-        *head = newNode;
-        return;
-    }
-
-    struct Node *temp = *head;
-
-    while (temp->next != NULL) {
+    while (temp->next != head) {
         temp = temp->next;
     }
 
     temp->next = newNode;
+    newNode->next = head;
 }
 
-// Delete from beginning
-void deleteBeginning(struct Node **head) {
-    struct Node *temp;
-
-    if (*head == NULL) {
-        printf("\nLinked List is empty!\n");
+// Delete a node by value
+void deleteNode(Node*& head, int value) {
+    if (head == nullptr) {
+        cout << "List is empty.\n";
         return;
     }
 
-    temp = *head;
-    *head = (*head)->next;
+    Node* current = head;
+    Node* previous = nullptr;
 
-    free(temp);
+    // Case 1: Only one node
+    if (head->next == head) {
+        if (head->data == value) {
+            delete head;
+            head = nullptr;
+            cout << "Node deleted.\n";
+        } else {
+            cout << "Value not found.\n";
+        }
+        return;
+    }
 
-    printf("\nFirst node deleted.\n");
+    // Case 2: Delete head node
+    if (head->data == value) {
+        Node* last = head;
+
+        while (last->next != head) {
+            last = last->next;
+        }
+
+        current = head;
+        head = head->next;
+        last->next = head;
+
+        delete current;
+        cout << "Node deleted.\n";
+        return;
+    }
+
+    // Case 3: Delete any other node
+    current = head;
+
+    do {
+        previous = current;
+        current = current->next;
+
+        if (current->data == value) {
+            previous->next = current->next;
+            delete current;
+            cout << "Node deleted.\n";
+            return;
+        }
+
+    } while (current != head);
+
+    cout << "Value not found.\n";
+}
+
+// Display the circular linked list
+void display(Node* head) {
+    if (head == nullptr) {
+        cout << "List is empty.\n";
+        return;
+    }
+
+    Node* temp = head;
+
+    cout << "Circular Linked List: ";
+
+    do {
+        cout << temp->data << " -> ";
+        temp = temp->next;
+    } while (temp != head);
+
+    cout << "HEAD\n";
 }
 
 int main() {
-    struct Node *head = NULL;
-    int choice;
+    Node* head = nullptr;
+    int choice, value;
 
-    do {
-        printf("\n========== MENU ==========\n");
-        printf("1. Create Linked List\n");
-        printf("2. Insert at Beginning\n");
-        printf("3. Insert at End\n");
-        printf("4. Delete from Beginning\n");
-        printf("5. Display Linked List\n");
-        printf("6. Exit\n");
-        printf("===========================\n");
+    while (true) {
+        cout << "\n--- Circular Linked List ---\n";
+        cout << "1. Insert\n";
+        cout << "2. Delete\n";
+        cout << "3. Display\n";
+        cout << "4. Exit\n";
 
-        printf("Enter your choice: ");
-        scanf("%d", &choice);
+        cout << "Enter your choice: ";
+        cin >> choice;
 
         switch (choice) {
-
             case 1:
-                create(&head);
+                cout << "Enter value to insert: ";
+                cin >> value;
+
+                insertNode(head, value);
+                cout << "Node inserted successfully.\n";
                 break;
 
             case 2:
-                insertBeginning(&head);
+                cout << "Enter value to delete: ";
+                cin >> value;
+
+                deleteNode(head, value);
                 break;
 
             case 3:
-                insertEnd(&head);
-                break;
-
-            case 4:
-                deleteBeginning(&head);
-                break;
-
-            case 5:
                 display(head);
                 break;
 
-            case 6:
-                printf("\nExiting...\n");
-                break;
+            case 4:
+                cout << "Program terminated.\n";
+                return 0;
 
             default:
-                printf("\nInvalid choice!\n");
+                cout << "Invalid choice. Please try again.\n";
         }
-
-    } while (choice != 6);
-
-    // Display linked list at the end
-    printf("\n========== FINAL OUTPUT ==========\n");
-    display(head);
+    }
 
     return 0;
 }
